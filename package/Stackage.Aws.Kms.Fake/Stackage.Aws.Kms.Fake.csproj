@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Product>Stackage</Product>
+    <Title>Stackage.Aws.Kms.Fake</Title>
+    <Description>Fake API for running AWS KMS locally</Description>
+    <Authors>Andrew Craven</Authors>
+    <Version>0.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Stackage.Aws.Kms.Fake</PackageId>
+    <PackageType>DotnetTool</PackageType>
+    <PackageTags>aws;kms;fake;api</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/concilify/stackage-aws-kms-fake</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>true</IsPackable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>fake-kms</ToolCommandName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
