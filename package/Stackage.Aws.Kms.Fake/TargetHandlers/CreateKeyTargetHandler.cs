@@ -15,17 +15,21 @@ public class CreateKeyTargetHandler : ITargetHandler
         new(@"Credential=(?<aws_secret_id>.*?)\/(?<date>[0-9]{8})\/(?<region>.*?)\/kms\/aws4_request");
 
     private readonly IGenerateGuids _guidGenerator;
+    private readonly IKeyStore _keyStore;
 
-    public CreateKeyTargetHandler(IGenerateGuids guidGenerator)
+    public CreateKeyTargetHandler(
+       IGenerateGuids guidGenerator,
+       IKeyStore keyStore)
     {
        _guidGenerator = guidGenerator;
+       _keyStore = keyStore;
     }
 
     public bool CanHandle(string target) => target == "TrentService.CreateKey";
 
     public IResult Handle(HttpContext context)
     {
-        var credentialMatch = CredentialRegex.Match(context.Request.Headers.Authorization.ToString() ?? string.Empty);
+        var credentialMatch = CredentialRegex.Match(context.Request.Headers.Authorization.ToString());
 
         if (!credentialMatch.Success)
         {
@@ -35,6 +39,8 @@ public class CreateKeyTargetHandler : ITargetHandler
         var key = Key.Create(
            id: _guidGenerator.Generate(),
            region: credentialMatch.Groups["region"].Value);
+
+        _keyStore.Add(key);
 
         var keyMetadata = new KeyMetadata(
             AwsAccountId: "000000000000",
