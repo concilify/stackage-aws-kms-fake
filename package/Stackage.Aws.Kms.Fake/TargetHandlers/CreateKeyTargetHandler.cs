@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Stackage.Aws.Kms.Fake.Model;
 using Stackage.Aws.Kms.Fake.Services;
@@ -7,13 +5,8 @@ using Stackage.Aws.Kms.Fake.TargetHandlers.Model;
 
 namespace Stackage.Aws.Kms.Fake.TargetHandlers;
 
-public class CreateKeyTargetHandler : ITargetHandler
+public class CreateKeyTargetHandler : TargetHandlerBase
 {
-   private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = null };
-
-    private static readonly Regex CredentialRegex =
-        new(@"Credential=(?<aws_secret_id>.*?)\/(?<date>[0-9]{8})\/(?<region>.*?)\/kms\/aws4_request");
-
     private readonly IAuthenticationContext _authenticationContext;
     private readonly IGenerateGuids _guidGenerator;
     private readonly IKeyStore _keyStore;
@@ -28,24 +21,17 @@ public class CreateKeyTargetHandler : ITargetHandler
        _keyStore = keyStore;
     }
 
-    public bool CanHandle(string target) => target == "TrentService.CreateKey";
+    protected override string Target => "TrentService.CreateKey";
 
-    public IResult Handle(HttpContext context)
+    public override IResult Handle(HttpContext context)
     {
-        var credentialMatch = CredentialRegex.Match(context.Request.Headers.Authorization.ToString());
-
-        if (!credentialMatch.Success)
-        {
-            return Results.Unauthorized();
-        }
-
         var key = Key.Create(
            id: _guidGenerator.Generate(),
-           region: credentialMatch.Groups["region"].Value);
+           region: _authenticationContext.Region);
 
         _keyStore.Add(key);
 
-        var keyMetadata = new KeyMetadata(
+        var keyMetadata = new CreateKeyResponse.KeyMetadataDto(
             AwsAccountId: "000000000000",
             KeyId: key.Id.ToString(),
             key.Arn,
@@ -61,10 +47,6 @@ public class CreateKeyTargetHandler : ITargetHandler
             EncryptionAlgorithms: new[] { "SYMMETRIC_DEFAULT" },
             MultiRegion: false);
 
-        return Results.Json(
-            new CreateKeyResponse(keyMetadata),
-            options: SerializerOptions,
-            contentType: "application/x-amz-json-1.1",
-            statusCode: 200);
+        return AmazonJson(new CreateKeyResponse(keyMetadata));
     }
 }
