@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,11 @@ using Stackage.Aws.Kms.Fake.TargetHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddSingleton<IKeyStore, InMemoryKeyStore>();
+
+builder.Services.AddScoped<IAuthenticationContext, AuthenticationContext>();
 
 builder.Services.AddTransient<IGenerateGuids, GuidGenerator>();
 builder.Services.AddTransient<ITargetHandler, CreateKeyTargetHandler>();
@@ -16,12 +21,32 @@ builder.Services.AddTransient<ITargetHandler, ListKeysTargetHandler>();
 
 var app = builder.Build();
 
-app.MapPost("/", ([FromHeader(Name = "X-Amz-Target")] string target, HttpContext context) =>
+app.Use(async (context, next) =>
+{
+   var authenticationContext = context.RequestServices.GetRequiredService<IAuthenticationContext>();
+
+   if (!authenticationContext.IsAuthenticated)
+   {
+      context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+
+      return;
+   }
+
+   await next(context);
+});
+
+app.Use(async (context, next) =>
 {
    var guidGenerator = context.RequestServices.GetRequiredService<IGenerateGuids>();
-   var targetHandlers = context.RequestServices.GetServices<ITargetHandler>();
 
    context.Response.Headers.Append("X-Amzn-RequestId", guidGenerator.Generate().ToString());
+
+   await next(context);
+});
+
+app.MapPost("/", ([FromHeader(Name = "X-Amz-Target")] string target, HttpContext context) =>
+{
+   var targetHandlers = context.RequestServices.GetServices<ITargetHandler>();
 
    var targetHandler = targetHandlers.SingleOrDefault(h => h.CanHandle(target));
 
