@@ -14,13 +14,16 @@ public class CreateKeyTargetHandler : ITargetHandler
     private static readonly Regex CredentialRegex =
         new(@"Credential=(?<aws_secret_id>.*?)\/(?<date>[0-9]{8})\/(?<region>.*?)\/kms\/aws4_request");
 
+    private readonly IAuthenticationContext _authenticationContext;
     private readonly IGenerateGuids _guidGenerator;
     private readonly IKeyStore _keyStore;
 
     public CreateKeyTargetHandler(
+       IAuthenticationContext authenticationContext,
        IGenerateGuids guidGenerator,
        IKeyStore keyStore)
     {
+       _authenticationContext = authenticationContext;
        _guidGenerator = guidGenerator;
        _keyStore = keyStore;
     }

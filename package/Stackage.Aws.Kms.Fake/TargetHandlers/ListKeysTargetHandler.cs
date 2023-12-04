@@ -15,10 +15,14 @@ public class ListKeysTargetHandler : ITargetHandler
     private static readonly Regex CredentialRegex =
         new(@"Credential=(?<aws_secret_id>.*?)\/(?<date>[0-9]{8})\/(?<region>.*?)\/kms\/aws4_request");
 
+    private readonly IAuthenticationContext _authenticationContext;
     private readonly IKeyStore _keyStore;
 
-    public ListKeysTargetHandler(IKeyStore keyStore)
+    public ListKeysTargetHandler(
+       IAuthenticationContext authenticationContext,
+       IKeyStore keyStore)
     {
+       _authenticationContext = authenticationContext;
        _keyStore = keyStore;
     }
 
@@ -28,7 +32,7 @@ public class ListKeysTargetHandler : ITargetHandler
     {
         var credentialMatch = CredentialRegex.Match(context.Request.Headers.Authorization.ToString());
 
-        if (!credentialMatch.Success)
+        if (!_authenticationContext.Success)
         {
             return Results.Unauthorized();
         }
