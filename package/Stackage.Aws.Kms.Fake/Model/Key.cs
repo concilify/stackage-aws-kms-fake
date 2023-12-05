@@ -45,6 +45,7 @@ public class Key
          DateTime.Now);
    }
 
+   // https://www.scottbrady91.com/c-sharp/aes-gcm-dotnet
    public ReadOnlySpan<byte> Encrypt(ReadOnlySpan<byte> plaintext)
    {
       using var aes = CreateAesGcm();
