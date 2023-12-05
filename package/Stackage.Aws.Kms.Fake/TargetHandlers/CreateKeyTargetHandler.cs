@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Stackage.Aws.Kms.Fake.Model;
 using Stackage.Aws.Kms.Fake.Services;
@@ -23,7 +24,7 @@ public class CreateKeyTargetHandler : TargetHandlerBase
 
     protected override string Target => "TrentService.CreateKey";
 
-    public override IResult Handle(HttpContext context)
+    public override Task<IResult> HandleAsync(HttpContext context)
     {
         var key = Key.Create(
            id: _guidGenerator.Generate(),
@@ -47,6 +48,6 @@ public class CreateKeyTargetHandler : TargetHandlerBase
             EncryptionAlgorithms: new[] { "SYMMETRIC_DEFAULT" },
             MultiRegion: false);
 
-        return AmazonJson(new CreateKeyResponse(keyMetadata));
+        return Task.FromResult(AmazonJson(new CreateKeyResponse(keyMetadata)));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace Stackage.Aws.Kms.Fake.TargetHandlers;
@@ -9,7 +10,7 @@ public abstract class TargetHandlerBase : ITargetHandler
 
    public bool CanHandle(string target) => target == Target;
 
-   public abstract IResult Handle(HttpContext context);
+   public abstract Task<IResult> HandleAsync(HttpContext context);
 
    protected abstract string Target { get; }
 

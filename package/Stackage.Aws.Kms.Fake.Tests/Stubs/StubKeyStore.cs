@@ -14,7 +14,7 @@ public class StubKeyStore : IKeyStore
       Keys.Add(key);
    }
 
-   public IReadOnlyList<Key> GetByRegion(string region)
+   public IReadOnlyList<Key> GetAll(string region)
    {
       return Keys.Where(k => k.Region == region).ToList();
    }
