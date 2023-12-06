@@ -29,8 +29,6 @@ builder.Services.AddTransient<ITargetHandler, DecryptTargetHandler>();
 
 var app = builder.Build();
 
-// TODO: https://dev.to/chiragdm/envelope-encryption-using-aws-cli-3ejd
-
 app.Use(async (context, next) =>
 {
    var authenticationContext = context.RequestServices.GetRequiredService<IAuthenticationContext>();

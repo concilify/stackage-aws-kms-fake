@@ -23,12 +23,12 @@ public class InMemoryKeyStore : IKeyStore
    {
       if (key.Region != _authenticationContext.Region)
       {
-         throw new InvalidOperationException("Cannot store a key for another region");
+         throw new InvalidOperationException("Cannot store a key for another region.");
       }
 
       if (!_keys.TryAdd(key.Id, key))
       {
-         throw new InvalidOperationException("A key with the same Id already exists");
+         throw new InvalidOperationException("A key with the same id already exists.");
       }
    }
 
