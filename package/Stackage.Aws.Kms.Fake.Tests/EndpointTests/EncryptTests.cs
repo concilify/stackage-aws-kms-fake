@@ -24,15 +24,15 @@ public class EncryptTests : EndpointScenarioBase
    [Test]
    public async Task endpoint_returns_200_okay()
    {
-      var httpResponse = await InvokeAsync(keyId: _keyId, plaintext: "Zm9v");
+      var httpResponse = await InvokeEncryptAsync(keyId: _keyId, plaintext: "Zm9v");
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.OK));
    }
 
    [Test]
-   public async Task endpoint_returns_content()
+   public async Task endpoint_returns_encrypted_content()
    {
-      var httpResponse = await InvokeAsync(keyId: _keyId, plaintext: "Zm9v");
+      var httpResponse = await InvokeEncryptAsync(keyId: _keyId, plaintext: "Zm9v");
 
       var content = await ReadAsJsonNode(httpResponse);
 
@@ -43,7 +43,7 @@ public class EncryptTests : EndpointScenarioBase
    [Test]
    public async Task endpoint_returns_content_type()
    {
-      var httpResponse = await InvokeAsync(keyId: _keyId, plaintext: "Zm9v");
+      var httpResponse = await InvokeEncryptAsync(keyId: _keyId, plaintext: "Zm9v");
 
       Assert.That(httpResponse.Content.Headers.ContentType?.ToString(), Is.EqualTo("application/x-amz-json-1.1"));
    }
@@ -55,7 +55,7 @@ public class EncryptTests : EndpointScenarioBase
 
       GuidGenerator.Seed(awsRequestId);
 
-      var httpResponse = await InvokeAsync(keyId: _keyId, plaintext: "Zm9v");
+      var httpResponse = await InvokeEncryptAsync(keyId: _keyId, plaintext: "Zm9v");
 
       Assert.That(httpResponse.Headers.GetValues("X-Amzn-RequestId").Single(), Is.EqualTo(awsRequestId.ToString()));
    }
@@ -63,7 +63,7 @@ public class EncryptTests : EndpointScenarioBase
    [Test]
    public async Task endpoint_returns_400_when_key_not_found()
    {
-      var httpResponse = await InvokeAsync(keyId: Guid.NewGuid(), plaintext: "Zm9v");
+      var httpResponse = await InvokeEncryptAsync(keyId: Guid.NewGuid(), plaintext: "Zm9v");
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
    }
@@ -73,7 +73,7 @@ public class EncryptTests : EndpointScenarioBase
    {
       var missingKeyId = Guid.NewGuid();
 
-      var httpResponse = await InvokeAsync(
+      var httpResponse = await InvokeEncryptAsync(
          keyId: missingKeyId,
          plaintext: "Zm9v",
          authorization: new DefaultAuthorization(Region));
@@ -91,7 +91,7 @@ public class EncryptTests : EndpointScenarioBase
    [TestCaseSource(nameof(InvalidAuthorizationHeaderTestCases))]
    public async Task endpoint_returns_401_unauthorized_when_authorisation_header_is_invalid(IAuthorization authorization)
    {
-      var httpResponse = await InvokeAsync(keyId: _keyId, plaintext: "Zm9v", authorization: authorization);
+      var httpResponse = await InvokeEncryptAsync(keyId: _keyId, plaintext: "Zm9v", authorization: authorization);
 
       Assert.That(httpResponse.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
    }
@@ -99,14 +99,14 @@ public class EncryptTests : EndpointScenarioBase
    [TestCaseSource(nameof(InvalidAuthorizationHeaderTestCases))]
    public async Task endpoint_returns_empty_when_authorisation_header_is_invalid(IAuthorization authorization)
    {
-      var httpResponse = await InvokeAsync(keyId: _keyId, plaintext: "Zm9v", authorization: authorization);
+      var httpResponse = await InvokeEncryptAsync(keyId: _keyId, plaintext: "Zm9v", authorization: authorization);
 
       var content = await httpResponse.Content.ReadAsStringAsync();
 
       Assert.That(content, Is.Empty);
    }
 
-   private async Task<HttpResponseMessage> InvokeAsync(
+   private async Task<HttpResponseMessage> InvokeEncryptAsync(
       Guid keyId,
       string plaintext,
       IAuthorization? authorization = null)
