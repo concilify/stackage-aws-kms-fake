@@ -34,7 +34,7 @@ public class InMemoryKeyStore : IKeyStore
 
    public Key? GetOne(Guid id)
    {
-      return _keys.Values.SingleOrDefault(k => k.Region == _authenticationContext.Region);
+      return _keys.Values.SingleOrDefault(k => k.Id == id && k.Region == _authenticationContext.Region);
    }
 
    public IReadOnlyList<Key> GetAll()

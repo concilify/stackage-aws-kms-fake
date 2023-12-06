@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Stackage.Aws.Kms.Fake.Exceptions;
 using Stackage.Aws.Kms.Fake.Model;
 using Stackage.Aws.Kms.Fake.Services;
 using Stackage.Aws.Kms.Fake.TargetHandlers.Model;
@@ -11,37 +10,32 @@ namespace Stackage.Aws.Kms.Fake.TargetHandlers;
 
 public class DecryptTargetHandler : TargetHandlerBase
 {
-   private static readonly int KeyIdBase64SizeInBytes = Convert.ToBase64String(Encoding.UTF8.GetBytes(Guid.Empty.ToString("d"))).Length;
-
    private readonly IKeyStore _keyStore;
+   private readonly IAuthenticationContext _authenticationContext;
 
-   public DecryptTargetHandler(IKeyStore keyStore)
+   public DecryptTargetHandler(
+      IKeyStore keyStore,
+      IAuthenticationContext authenticationContext)
    {
       _keyStore = keyStore;
+      _authenticationContext = authenticationContext;
    }
 
    protected override string Target => "TrentService.Decrypt";
 
    public override async Task<IResult> HandleAsync(HttpContext context)
    {
-      // TODO: Check header
+      var request = await ParseAmazonJsonAsync<DecryptRequest>(context.Request);
 
-      var request = await JsonSerializer.DeserializeAsync<DecryptRequest>(context.Request.Body);
+      var buffer = Convert.FromBase64String(request.CiphertextBlob);
+      var (keyId, ciphertext) = Bytes.Split(buffer);
 
-      if (request == null)
-      {
-         throw new InvalidOperationException("The request body is missing");
-      }
-
-      // TODO: error handling
-      var keyId = request.CiphertextBlob[..KeyIdBase64SizeInBytes];
-      var ciphertext = request.CiphertextBlob[KeyIdBase64SizeInBytes..];
-
-      var key = _keyStore.GetOne(Guid.ParseExact(Encoding.UTF8.GetString(Convert.FromBase64String(keyId)), "d"));
+      var key = _keyStore.GetOne(keyId);
 
       if (key == null)
       {
-         throw new InvalidOperationException("The key was not found");
+         throw new NotFoundException(
+            $"Key 'arn:aws:kms:{_authenticationContext.Region}:000000000000:key/{keyId}' does not exist");
       }
 
       var plaintext = Decrypt(key, ciphertext);
@@ -49,9 +43,9 @@ public class DecryptTargetHandler : TargetHandlerBase
       return AmazonJson(new DecryptResponse(key.Arn, plaintext));
    }
 
-   private static string Decrypt(Key key, string ciphertext)
+   private static string Decrypt(Key key, byte[] ciphertext)
    {
-      var plaintext = key.Decrypt(Convert.FromBase64String(ciphertext));
+      var plaintext = key.Decrypt(ciphertext);
 
       return Convert.ToBase64String(plaintext);
    }

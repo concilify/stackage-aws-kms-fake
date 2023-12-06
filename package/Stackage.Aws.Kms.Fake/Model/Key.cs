@@ -45,8 +45,7 @@ public class Key
          DateTime.Now);
    }
 
-   // https://www.scottbrady91.com/c-sharp/aes-gcm-dotnet
-   public ReadOnlySpan<byte> Encrypt(ReadOnlySpan<byte> plaintext)
+   public byte[] Encrypt(ReadOnlySpan<byte> plaintext)
    {
       using var aes = CreateAesGcm();
 
@@ -56,21 +55,10 @@ public class Key
 
       aes.Encrypt(nonce, plaintext, actualCiphertext, tag);
 
-      var ciphertext = new byte[nonce.Length + actualCiphertext.Length + tag.Length];
-
-      BlockCopy(nonce, offset: 0);
-      BlockCopy(actualCiphertext, offset: nonce.Length);
-      BlockCopy(tag, offset: nonce.Length + actualCiphertext.Length);
-
-      return ciphertext;
-
-      void BlockCopy(byte[] source, int offset)
-      {
-         Buffer.BlockCopy(source, 0, ciphertext, offset, source.Length);
-      }
+      return Bytes.Concatenate(nonce, actualCiphertext, tag);
    }
 
-   public ReadOnlySpan<byte> Decrypt(ReadOnlySpan<byte> ciphertext)
+   public byte[] Decrypt(ReadOnlySpan<byte> ciphertext)
    {
       using var aes = CreateAesGcm();
 
