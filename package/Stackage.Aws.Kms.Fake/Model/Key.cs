@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Security.Cryptography;
 
 namespace Stackage.Aws.Kms.Fake.Model;
@@ -10,11 +12,21 @@ public class Key
    private const int NonceSizeInBytes = 12;
    private const int TagSizeInBytes = 16;
 
-   private Key(Guid id, string region, byte[] backingKey, DateTime createdAt)
+   private readonly byte[] _backingKey;
+
+   private ImmutableList<string> _aliases;
+
+   private Key(
+      Guid id,
+      string region,
+      string[] aliases,
+      byte[] backingKey,
+      DateTime createdAt)
    {
       Id = id;
       Region = region;
-      BackingKey = backingKey;
+      _aliases = ImmutableList.Create(aliases);
+      _backingKey = backingKey;
       CreatedAt = createdAt;
    }
 
@@ -22,7 +34,7 @@ public class Key
 
    public string Region { get; }
 
-   public byte[] BackingKey { get; }
+   public IReadOnlyList<string> Aliases => _aliases;
 
    public DateTime CreatedAt { get; }
 
@@ -31,6 +43,7 @@ public class Key
    public static Key Create(
       Guid? id = null,
       string? region = null,
+      string[]? aliases = null,
       byte[]? backingKey = null)
    {
       if (backingKey != null && backingKey.Length != 32)
@@ -41,8 +54,14 @@ public class Key
       return new Key(
          id ?? new Guid(),
          region ?? DefaultRegion,
+         aliases ?? Array.Empty<string>(),
          backingKey ?? GenerateRandomBytes(BackingKeySizeInBytes),
          DateTime.Now);
+   }
+
+   public void AddAlias(string aliasName)
+   {
+      _aliases = _aliases.Add(aliasName);
    }
 
    public byte[] Encrypt(ReadOnlySpan<byte> plaintext)
@@ -82,8 +101,8 @@ public class Key
    }
 
 #if NET6_0
-   private AesGcm CreateAesGcm() => new AesGcm(BackingKey);
+   private AesGcm CreateAesGcm() => new AesGcm(_backingKey);
 #else
-   private AesGcm CreateAesGcm() => new AesGcm(BackingKey, TagSizeInBytes);
+   private AesGcm CreateAesGcm() => new AesGcm(_backingKey, TagSizeInBytes);
 #endif
 }
