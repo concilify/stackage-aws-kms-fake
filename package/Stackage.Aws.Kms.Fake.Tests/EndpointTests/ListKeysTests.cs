@@ -30,7 +30,7 @@ namespace Stackage.Aws.Kms.Fake.Tests.EndpointTests
          var httpResponse = await InvokeAsync("ListKeys");
          var content = await ReadAsJsonNode(httpResponse);
 
-         var keys = content?["Keys"];
+         var keys = content["Keys"];
 
          Assert.That(
             keys?[0]?["KeyId"]?.GetValue<string>(),

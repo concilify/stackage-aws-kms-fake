@@ -132,7 +132,7 @@ public abstract class EndpointScenarioBase
 
    protected record DefaultAuthorization(string Region = "ValidRegion") : IAuthorization
    {
-      public AuthenticationHeaderValue? Resolve()
+      public AuthenticationHeaderValue Resolve()
       {
          return new AuthenticationHeaderValue(
             "AWS4-HMAC-SHA256",
@@ -140,15 +140,15 @@ public abstract class EndpointScenarioBase
       }
    }
 
-   protected record SchemeParameterAuthorization(string Scheme, string Parameter) : IAuthorization
+   private record SchemeParameterAuthorization(string Scheme, string Parameter) : IAuthorization
    {
-      public AuthenticationHeaderValue? Resolve()
+      public AuthenticationHeaderValue Resolve()
       {
          return new AuthenticationHeaderValue(Scheme, Parameter);
       }
    }
 
-   protected record MissingAuthorization : IAuthorization
+   private record MissingAuthorization : IAuthorization
    {
       public AuthenticationHeaderValue? Resolve()
       {
