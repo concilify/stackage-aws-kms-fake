@@ -10,5 +10,7 @@ public interface IKeyStore
 
    Key? GetOne(Guid id);
 
+   Key? GetOne(string idOrAlias);
+
    IReadOnlyList<Key> GetAll();
 }

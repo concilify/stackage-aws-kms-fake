@@ -20,6 +20,11 @@ public class FakeKeyStore : IKeyStore
       return Keys.SingleOrDefault(k => k.Id == id);
    }
 
+   public Key? GetOne(string idOrAlias)
+   {
+      return Keys.SingleOrDefault(k => k.Id.ToString() == idOrAlias || k.Aliases.Contains(idOrAlias));
+   }
+
    public IReadOnlyList<Key> GetAll()
    {
       return Keys;

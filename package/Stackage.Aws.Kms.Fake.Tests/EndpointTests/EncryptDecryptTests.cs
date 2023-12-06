@@ -19,12 +19,12 @@ public class EncryptDecryptTests : EndpointScenarioBase
    protected override void SetupBeforeEachTest()
    {
       KeyStore.Seed(
-         Key.Create(id: KeyAId, region: Region, backingKey: BackingKeyA),
-         Key.Create(id: KeyBId, region: Region, backingKey: BackingKeyB));
+         Key.Create(id: KeyAId, region: Region, aliases: new[] { "alias/A" }, backingKey: BackingKeyA),
+         Key.Create(id: KeyBId, region: Region, aliases: new[] { "alias/B" }, backingKey: BackingKeyB));
    }
 
    [TestCaseSource(nameof(RoundTripTestCases))]
-   public async Task encrypted_content_can_be_decrypted(Guid keyId, string plaintext)
+   public async Task encrypted_content_can_be_decrypted(string keyId, string plaintext)
    {
       var plaintextBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(plaintext));
 
@@ -49,10 +49,14 @@ public class EncryptDecryptTests : EndpointScenarioBase
    {
       return new[]
       {
-         new TestCaseData(KeyAId, "Hello World!"),
-         new TestCaseData(KeyAId, "The quick brown fox jumps over the lazy dog"),
-         new TestCaseData(KeyBId, "Hello World!"),
-         new TestCaseData(KeyBId, "The quick brown fox jumps over the lazy dog")
+         new TestCaseData(KeyAId.ToString(), "Hello World!"),
+         new TestCaseData(KeyAId.ToString(), "The quick brown fox jumps over the lazy dog"),
+         new TestCaseData(KeyBId.ToString(), "Hello World!"),
+         new TestCaseData(KeyBId.ToString(), "The quick brown fox jumps over the lazy dog"),
+         new TestCaseData("alias/A", "Hello World!"),
+         new TestCaseData("alias/A", "The quick brown fox jumps over the lazy dog"),
+         new TestCaseData("alias/B", "Hello World!"),
+         new TestCaseData("alias/B", "The quick brown fox jumps over the lazy dog")
       };
    }
 }
