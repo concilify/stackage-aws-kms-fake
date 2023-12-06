@@ -4,9 +4,9 @@ using System.Linq;
 using Stackage.Aws.Kms.Fake.Model;
 using Stackage.Aws.Kms.Fake.Services;
 
-namespace Stackage.Aws.Kms.Fake.Tests.Stubs;
+namespace Stackage.Aws.Kms.Fake.Tests.TestDoubles;
 
-public class StubKeyStore : IKeyStore
+public class FakeKeyStore : IKeyStore
 {
    public List<Key> Keys { get; } = new();
 
@@ -15,7 +15,7 @@ public class StubKeyStore : IKeyStore
       Keys.Add(key);
    }
 
-   public Key GetOne(Guid id)
+   public Key? GetOne(Guid id)
    {
       return Keys.SingleOrDefault(k => k.Id == id);
    }

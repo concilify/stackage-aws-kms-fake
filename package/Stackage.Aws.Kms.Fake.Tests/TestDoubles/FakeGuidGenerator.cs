@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using Stackage.Aws.Kms.Fake.Services;
 
-namespace Stackage.Aws.Kms.Fake.Tests.Stubs;
+namespace Stackage.Aws.Kms.Fake.Tests.TestDoubles;
 
-public class StubGuidGenerator : IGenerateGuids
+public class FakeGuidGenerator : IGenerateGuids
 {
    private readonly Queue<Guid> _ids = new();
 

@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using Stackage.Aws.Kms.Fake.Services;
-using Stackage.Aws.Kms.Fake.Tests.Stubs;
+using Stackage.Aws.Kms.Fake.Tests.TestDoubles;
 
 namespace Stackage.Aws.Kms.Fake.Tests.EndpointTests;
 
@@ -19,16 +19,16 @@ public abstract class EndpointScenarioBase
 {
    private static readonly JsonSerializerOptions SerializerOptions = new() { PropertyNamingPolicy = null };
 
-   private StubGuidGenerator? _guidGenerator;
-   private StubKeyStore? _keyStore;
+   private FakeGuidGenerator? _guidGenerator;
+   private FakeKeyStore? _keyStore;
    private WebApplicationFactory<Program>? _application;
    private HttpClient? _httpClient;
 
    [OneTimeSetUp]
    public void setup_once_before_all_tests()
    {
-      _guidGenerator = new StubGuidGenerator();
-      _keyStore = new StubKeyStore();
+      _guidGenerator = new FakeGuidGenerator();
+      _keyStore = new FakeKeyStore();
 
       _application = new WebApplicationFactory<Program>()
          .WithWebHostBuilder(webHostBuilder =>
@@ -62,9 +62,9 @@ public abstract class EndpointScenarioBase
       SetupBeforeEachTest();
    }
 
-   protected StubGuidGenerator GuidGenerator => _guidGenerator ?? throw new InvalidOperationException("Scenario has not been initialised.");
+   protected FakeGuidGenerator GuidGenerator => _guidGenerator ?? throw new InvalidOperationException("Scenario has not been initialised.");
 
-   protected StubKeyStore KeyStore => _keyStore ?? throw new InvalidOperationException("Scenario has not been initialised.");
+   protected FakeKeyStore KeyStore => _keyStore ?? throw new InvalidOperationException("Scenario has not been initialised.");
 
    protected HttpClient HttpClient => _httpClient ?? throw new InvalidOperationException("Scenario has not been initialised.");
 
