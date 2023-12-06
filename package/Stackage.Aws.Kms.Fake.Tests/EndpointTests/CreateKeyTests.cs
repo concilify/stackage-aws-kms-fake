@@ -27,7 +27,7 @@ namespace Stackage.Aws.Kms.Fake.Tests.EndpointTests
          var httpResponse = await InvokeAsync("CreateKey", authorization: new DefaultAuthorization("ArbitraryRegion"));
          var content = await ReadAsJsonNode(httpResponse);
 
-         var keyMetadata = content?["KeyMetadata"];
+         var keyMetadata = content["KeyMetadata"];
 
          Assert.That(
             keyMetadata?["KeyId"]?.GetValue<string>(),

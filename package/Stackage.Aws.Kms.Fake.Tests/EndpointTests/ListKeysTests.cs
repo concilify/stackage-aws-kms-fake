@@ -27,10 +27,11 @@ namespace Stackage.Aws.Kms.Fake.Tests.EndpointTests
             Key.Create(id: keyAId, region: "RegionA"),
             Key.Create(id: keyBId, region: "RegionB"));
 
-         var httpResponse = await InvokeAsync("ListKeys");
+         var httpResponse = await InvokeAsync(
+            "ListKeys", authorization: new DefaultAuthorization("RegionA"));
          var content = await ReadAsJsonNode(httpResponse);
 
-         var keys = content?["Keys"];
+         var keys = content["Keys"];
 
          Assert.That(
             keys?[0]?["KeyId"]?.GetValue<string>(),
@@ -38,13 +39,6 @@ namespace Stackage.Aws.Kms.Fake.Tests.EndpointTests
          Assert.That(
             keys?[0]?["KeyArn"]?.GetValue<string>(),
             Is.EqualTo($"arn:aws:kms:RegionA:000000000000:key/{keyAId}"));
-
-         Assert.That(
-            keys?[1]?["KeyId"]?.GetValue<string>(),
-            Is.EqualTo(keyBId.ToString()));
-         Assert.That(
-            keys?[1]?["KeyArn"]?.GetValue<string>(),
-            Is.EqualTo($"arn:aws:kms:RegionB:000000000000:key/{keyBId}"));
       }
 
       [Test]
