@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Stackage.Aws.Kms.Fake.Model;
@@ -14,9 +15,14 @@ public class FakeKeyStore : IKeyStore
       Keys.Add(key);
    }
 
-   public IReadOnlyList<Key> GetByRegion(string region)
+   public Key? GetOne(Guid id)
    {
-      return Keys.Where(k => k.Region == region).ToList();
+      return Keys.SingleOrDefault(k => k.Id == id);
+   }
+
+   public IReadOnlyList<Key> GetAll()
+   {
+      return Keys;
    }
 
    public void Seed(params Key[] keys)
