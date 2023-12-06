@@ -37,6 +37,11 @@ public class InMemoryKeyStore : IKeyStore
       return _keys.Values.SingleOrDefault(k => k.Id == id && k.Region == _authenticationContext.Region);
    }
 
+   public Key? GetOne(string idOrAlias)
+   {
+      return _keys.Values.SingleOrDefault(k => (k.Id.ToString() == idOrAlias || k.Aliases.Contains(idOrAlias) ) && k.Region == _authenticationContext.Region);
+   }
+
    public IReadOnlyList<Key> GetAll()
    {
       return _keys.Values.Where(k => k.Region == _authenticationContext.Region).ToList();

@@ -1,5 +1,3 @@
-﻿using System;
+﻿namespace Stackage.Aws.Kms.Fake.TargetHandlers.Model;
 
-namespace Stackage.Aws.Kms.Fake.TargetHandlers.Model;
-
-public record EncryptRequest(Guid KeyId, string Plaintext);
+public record EncryptRequest(string KeyId, string Plaintext);
