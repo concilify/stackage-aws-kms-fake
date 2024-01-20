@@ -25,6 +25,7 @@ builder.Services.AddTransient<IGenerateGuids, GuidGenerator>();
 builder.Services.AddTransient<ITargetHandler, CreateKeyTargetHandler>();
 builder.Services.AddTransient<ITargetHandler, CreateAliasTargetHandler>();
 builder.Services.AddTransient<ITargetHandler, ListKeysTargetHandler>();
+builder.Services.AddTransient<ITargetHandler, GenerateDataKeyTargetHandler>();
 builder.Services.AddTransient<ITargetHandler, EncryptTargetHandler>();
 builder.Services.AddTransient<ITargetHandler, DecryptTargetHandler>();
 

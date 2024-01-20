@@ -1,10 +1,19 @@
 ﻿using System;
+using System.Security.Cryptography;
 
 namespace Stackage.Aws.Kms.Fake;
 
 internal static class Bytes
 {
    private static readonly int GuidSizeInBytes = Guid.Empty.ToByteArray().Length;
+
+   public static byte[] GenerateRandomBytes(int sizeBytes)
+   {
+      var backingKey = new byte[sizeBytes];
+      RandomNumberGenerator.Fill(backingKey);
+
+      return backingKey;
+   }
 
    public static byte[] Concatenate(byte[] from1, byte[] from2, byte[] from3)
    {
